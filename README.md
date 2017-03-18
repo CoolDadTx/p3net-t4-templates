@@ -1,2 +1,3 @@
 # P3Net
-Repository for P3Net site code
+Repository for blog - http://www.michaeltaylorp3.net
+
