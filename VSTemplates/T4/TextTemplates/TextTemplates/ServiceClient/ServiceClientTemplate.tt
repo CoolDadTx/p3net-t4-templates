@@ -1,0 +1,208 @@
+﻿<#@ include file="ServiceContractTemplate.tt" #>
+<#+
+public class ServiceClientTemplate : MyTemplate
+{
+    #region Configuration Properties
+
+    public bool IsPublic;
+
+    [Required]
+    [MinLength(1)]
+    public string ContractName { get; set; }
+
+    [Required]
+    [MinLength(1)]
+    public string ContractTypeName { get; set; }
+
+	public bool ExcludeExtensionClass { get; set; }
+	
+    [Required]
+    [MinLength(1)]
+    public string EndpointName { get; set; }
+
+    #endregion
+    
+    private ServiceContractInfo Contract;
+
+    private Type FindType ( string typeName )
+    {
+        //Get the list of referenced assemblies, skipping the system provided assemblies
+        var assemblies = ActiveProject.GetReferencedAssemblies(ReferencedAssemblyFlags.UserDefinedAssembly);            
+            
+        //Assume that the type is contained in an assembly with a name that matches the namespace so try and find an exact match
+        var exactAssembly = FindExactAssembly(typeName, assemblies);
+        if (exactAssembly != null)
+        {            
+            var type = FindTypeInAssembly(exactAssembly, typeName);
+            if (type != null)
+                return type;
+        };
+
+        //Search the assembly 
+        foreach (var assembly in assemblies)
+        {
+            var type = FindTypeInAssembly(assembly, typeName);
+            if (type != null)
+                return type;
+        };
+
+        return null;
+    }
+
+    private VSLangProj.Reference FindExactAssembly ( string typeName, IEnumerable<VSLangProj.Reference> references )
+    {
+        //Get the namespace 
+        int pos = typeName.LastIndexOf('.');
+        while (pos > 0)
+        {
+            var namespaceName = typeName.Substring(0, pos);
+            
+            //Does an assembly match this name
+            var match = (from reference in references
+                            where String.Compare(reference.Name, namespaceName, true) == 0
+                            select reference).FirstOrDefault();
+            if (match != null)
+                return match;
+
+            //Next
+            pos = namespaceName.LastIndexOf('.');
+        };
+
+        return null;
+    }
+
+    private Type FindTypeInAssembly ( VSLangProj.Reference reference, string typeName )
+    {
+        var qualifiedName = typeName + "," + reference.Name;
+
+        //Cannot currently use reflection-only because custom attributes fail to load and we would need to load the child assemblies anyway
+        var asm = Assembly.LoadFrom(reference.Path);
+
+        return asm.GetType(typeName, false);
+    }
+
+    protected override IEnumerable<AssemblyDependency> GetDependencies ()
+    {        
+        return new AssemblyDependency[] {
+                new AssemblyDependency("Framework.ServiceModel", "Framework.ServiceModel", new Version(1, 0, 0, 0))
+        };
+    }
+
+    protected override void Validate ()
+    {
+        base.Validate();        
+        if (Errors.HasErrors)
+            return;
+        
+        var type = FindType(ContractTypeName);
+        if (type == null)
+            Error("Contract type '{0}' could not be found.", ContractTypeName);
+        
+        Contract = new ServiceContractInfo(type);
+    }
+
+    protected override void WriteTypeAttributesCore ( StringBuilder builderm, bool isInterface )
+    {
+        base.WriteTypeAttributesCore(builder, isInterface);
+
+        if (Contract.IsObsolete)
+            if (Contract.ObsoleteIsError)
+                builder.AppendLine("[Obsolete(\"{0}\", true)]", Contract.ObsoleteMessage);
+            else
+                builder.AppendLine("[Obsolete(\"{0}\")]", Contract.ObsoleteMessage);
+    }
+    
+    public override string TransformText ()
+    {    
+        base.TransformText(); #>
+using System;
+using System.ServiceModel;
+
+using Framework.ServiceModel;
+
+namespace <#= DefaultNamespace #>
+{    
+#pragma warning disable 0618
+    /// <summary>Provides a wrapper around a <see cref="<#= Contract.FriendlyName #>"/> WCF client.</summary>
+    /// <remarks>
+    /// An instance of this class can be created without wrapping it in a using statement.  The underlying proxy is 
+    /// opened and closed for each call, including under exceptional conditions.  Furthermore the client implements the
+    /// WCF contract directly making it easier to use the interface directly in code without regard to whether the proxy
+    /// is being used or not.
+    /// <para/>
+    /// In cases where several methods are to be called together it makes more sense to use a persistent channel.  Refer
+    /// to <see cref="ISupportsPersistentChannel"/> for how to do this.
+    /// <para/>
+    /// Only methods visible through WCF are implemented.  Properties, non-operation contract methods and special members are ignored.
+    /// Non-service contract interfaces are also ignored.  In general it is considered bad practice to expose these through WCF.
+    /// In the rare case where such an implementation is needed then add a partial class to the project that implements
+    /// the missing members.
+    /// </remarks>
+<#+ Indent(); WriteTypeAttributes(); Unindent(); #>    
+    <#= IsPublic ? "public" : "internal" #> partial class <#= ContractName #>Client : ServiceChannelClient<<#= Contract.FriendlyName #>>, <#= Contract.FriendlyName #>
+    {
+        public <#= ContractName #>Client () : base("<#= EndpointName #>")
+        {
+        }
+
+        public <#= ContractName #>Client ( string endpointName ) : base(endpointName)
+        {
+        }
+<#+     
+        Indent(2);
+
+        //Generate the main contract
+        var template = new ServiceContractTemplate() { Service = Contract };
+        Write(template.TransformText());
+
+        //If there are any inherited ones then generate them as well
+        foreach (var service in Contract.GetInheritedContracts())
+        {
+            WriteLine("");
+            var child = new ServiceContractTemplate() { Service = service };
+            Write(child.TransformText());
+        };
+        Unindent(2);
+#>
+    }
+
+<#+    if (!ExcludeExtensionClass) {
+#>
+    /// <summary>Provides extensions for working with <see cref="<#= Contract.Type.Name #>"/> instances.</summary>    
+    <#= IsPublic ? "public" : "internal" #> static class <#= Contract.Type.Name #>ServiceClientExtensions
+    {
+        /// <summary>Opens a persistent connection to the service.</summary>
+        /// <param name="source">The source.</param>
+        /// <remarks>
+        /// If supported the client will keep the channel open for the life of the returned object.
+        /// Code that needs to make several service calls can optimize performance by calling this method to
+        /// open a temporary channel to the service.  All service calls on the client will then use the same channel.
+        /// <para/>
+        /// This method can be used even if the client does not support persistent channels.  The client calls will
+        /// execute normally.  Implementations of <see cref="ServiceChannelClient{0}"/> implement this interface.
+        /// <para/>
+        /// Be sure to wrap the returned object in a using statement to ensure it is closed when no longer needed.        
+        /// </remarks>
+        /// <seealso cref="ISupportsPersistentChannel" />
+        public static IDisposable OpenPersistentChannel ( this <#= Contract.FriendlyName #> source )
+        {
+            var batch = source as ISupportsPersistentChannel;
+            if (batch != null)
+            {
+                batch.Open();
+
+                return Disposable.Action(() => batch.Close());
+            };
+
+            return Disposable.Empty;
+        }
+    }
+<#+     };
+#>	
+#pragma warning restore 0618
+}
+<#+
+        return this.GenerationEnvironment.ToString();
+    }
+}
+#>

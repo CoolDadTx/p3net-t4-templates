@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" xmlns:sdk="http://schemas.microsoft.com/developer/vstemplate-sdkextension/2010">
+    <TemplateData>
+        <Name>Environmental Configuration Transforms</Name>
+        <Description>Template for generating basic environmental config transforms.</Description>
+        <Icon Package="{FAE04EC1-301F-11d3-BF4B-00C04F79EFBC}" ID="4600" />
+        <TemplateID>f7a423ac-7948-42a7-b9b9-cba719569106</TemplateID>
+        <ProjectType>CSharp</ProjectType>
+        <RequiredFrameworkVersion>4.0</RequiredFrameworkVersion>
+        <DefaultName>Environment</DefaultName>
+    </TemplateData>
+    <TemplateContent>
+        <ProjectItem SubType="Code" ReplaceParameters="true" ItemType="None" TargetFileName="$BaseConfigFileName$.config\$BaseConfigFileName$.Production.config">base.Production.config</ProjectItem>
+    </TemplateContent>
+    <WizardExtension>
+        <Assembly>P3Net.TemplateWizards, Version=15.0.0.0, Culture=neutral, PublicKeyToken=null</Assembly>
+        <FullClassName>P3Net.TemplateWizards.EnvironmentConfigsWizard</FullClassName>
+    </WizardExtension>
+</VSTemplate>

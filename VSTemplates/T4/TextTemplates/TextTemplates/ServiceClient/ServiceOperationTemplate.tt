@@ -1,0 +1,227 @@
+﻿<#@ include file="ExplicitInterfaceMethodTemplate.tt" #>
+<#@ include file="InvokeMethodTemplate.tt" #>
+<#+
+public sealed class ServiceOperationInfo
+{
+    public ServiceOperationInfo ( MethodInfo method )
+    {
+        Method = method;
+    }
+
+    public string DeclaringTypeFriendlyName
+    {
+        get 
+        {     
+            if (m_declaringTypeFriendlyName == null)
+                m_declaringTypeFriendlyName = Method.DeclaringType.GetFriendlyName(true);
+                
+            return m_declaringTypeFriendlyName;    
+        }
+    }
+
+    public bool HasCustomName 
+    {
+        get { return MethodName != Name; }
+    }
+
+    public bool IsFunction
+    {
+        get { return !Method.ReturnType.IsVoid(); }
+    }
+
+    public bool IsObsolete
+    {
+        get 
+        { 
+            if (!m_isObsolete.HasValue)
+            {
+                m_obsolete = Method.GetCustomAttribute<ObsoleteAttribute>(true);
+                
+                m_isObsolete = m_obsolete != null;       
+            };
+
+            return m_isObsolete.Value;
+        }
+    }
+
+    public MethodInfo Method { get; private set; }
+
+    public bool ObsoleteIsError
+    {
+        get { return IsObsolete ? m_obsolete.IsError : false; }
+    }
+
+    public string ObsoleteMessage
+    {
+        get { return IsObsolete ? m_obsolete.Message : ""; }
+    }
+
+    public string MethodName 
+    {
+        get { return Method.Name; }
+    }    
+
+    //Gets the service operation's name (not necessarily the method name)
+    public string Name 
+    {
+        get 
+        {
+            if (m_name == null)
+            {
+                var attr = Method.GetCustomAttribute<OperationContractAttribute>(false);
+                m_name = (attr != null && !String.IsNullOrEmpty(attr.Name)) ? attr.Name : Method.Name;
+            };
+
+            return m_name;
+        }
+    }
+
+    public IEnumerable<OperationParameterInfo> Parameters
+    {
+        get
+        {
+            if (m_parameters == null)
+                m_parameters = (from p in Method.GetParameters() select new OperationParameterInfo(this, p)).ToList();
+
+            return m_parameters;
+        }
+    }
+
+    public Type ReturnType
+    {
+        get { return Method.ReturnType; }
+    }
+
+    public string ReturnTypeFriendlyName
+    {
+        get 
+        {
+            if (m_returnTypeFriendlyName == null)
+                m_returnTypeFriendlyName = ReturnType.GetFriendlyName(true);
+
+            return m_returnTypeFriendlyName;
+        }
+    }        
+
+    public string GenerateTemporaryName ( )
+    {        
+        return String.Format("_t{0}", m_tempIdentifiers++);
+    }
+
+    private string m_name;
+    private string m_declaringTypeFriendlyName;
+    private string m_returnTypeFriendlyName;    
+    private IEnumerable<OperationParameterInfo> m_parameters;
+
+    private int m_tempIdentifiers = 1;
+
+    private bool? m_isObsolete;
+    private ObsoleteAttribute m_obsolete;
+}
+
+public sealed class OperationParameterInfo
+{
+    public OperationParameterInfo ( ServiceOperationInfo operation, ParameterInfo parameter )
+    {
+        Operation = operation;
+        Parameter = parameter;
+    }
+    
+    public bool HasTemporaryName
+    {
+        get { return !String.IsNullOrEmpty(TemporaryName); }
+    }
+
+    public bool IsOut
+    {
+        get { return Parameter.IsOut; }
+    }
+
+    public bool IsOutOrRef
+    {
+        get { return Parameter.IsOutOrRef(); }
+    }       
+
+    public bool IsRef
+    {
+        get { return Parameter.IsRef(); }
+    }
+
+    public string Name
+    {
+        get { return Parameter.Name; }
+    }
+
+    public ServiceOperationInfo Operation { get; private set; }
+    
+    public ParameterInfo Parameter { get; private set; }    
+    
+    public string TemporaryName 
+    {
+        get { return m_tempName ?? ""; }
+    }
+    
+    public Type Type 
+    { 
+        get { return Parameter.ParameterType; }
+    }
+
+    public string TypeFriendlyName
+    {
+        get 
+        {
+            if (m_friendlyName == null)
+                m_friendlyName = Parameter.ParameterType.GetFriendlyName(true);
+
+            return m_friendlyName;
+        }
+    }    
+
+    public string GenerateTemporaryName ()
+    {
+        m_tempName = Operation.GenerateTemporaryName() + "_" + Name;
+
+        return TemporaryName;
+    }
+    
+    private string m_friendlyName;
+    private string m_tempName;
+}
+
+public abstract class ServiceOperationTextTransformation : TextTransformation
+{
+    //////////////////////////////
+    // Configuration Properties
+    
+    public ServiceOperationInfo Operation { get; set; }
+        
+    //////////////////////////////
+    // Methods
+    
+    protected static string GetDefaultValueString ( OperationParameterInfo parameter )
+    {
+        var type = parameter.IsOutOrRef ? parameter.Type.GetElementType() : parameter.Type;        
+
+        return type.IsValueType ? String.Format("default({0})", parameter.TypeFriendlyName) : "null";
+    }
+
+    protected static string RenderArgument ( OperationParameterInfo parameter, bool useTemporaryName = true )
+    {
+        var name = (useTemporaryName && parameter.HasTemporaryName) ? parameter.TemporaryName : parameter.Name;
+
+        if (parameter.IsOut)
+            return "out " + name;
+        else if (parameter.IsRef)
+            return "ref " + name;
+
+        return name;
+    }
+
+    protected string RenderParameterList ( )
+    {                    
+        var items = (from p in Operation.Parameters select String.Format("{0}{1} {2}", p.IsOut ? "out " : (p.IsRef ? "ref " : ""), p.TypeFriendlyName, p.Name));
+
+        return String.Join(", ", items);
+    } 
+}
+#>

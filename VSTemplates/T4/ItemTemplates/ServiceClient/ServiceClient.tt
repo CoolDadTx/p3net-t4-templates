@@ -1,0 +1,16 @@
+<#@ template language="C#" hostSpecific="true" #>
+<#@ output extension=".txt" #>
+<#@ include file="ServiceClientsGenerator.tt" #>
+<# 
+    //TODO: Make changes here if needed
+    var template = new ServiceClientsGenerator() {            
+            IsPublic = false,                   //Set true to make clients public, generally not recommended
+            ConfigurationProject = null,        //Optionally set to project containing the endpoints to generate from
+    };
+
+    //TODO: Optionally configure endpoint options
+    template.ConfigureEndpoint("myendpoint", new EndpointConfiguration() { Name = "YourEndpoint" })
+            .ConfigureEndpoint("ignoreEndpoint", new EndpointConfiguration() { Exclude = true });
+
+    template.Run();
+#>

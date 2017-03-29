@@ -1,0 +1,30 @@
+﻿<#+
+public class ExplicitInterfaceMethodTemplate : ServiceOperationTextTransformation
+{        
+    private string RenderArgumentsFromParameterList ( )
+    {
+        return String.Join(", ", (from p in Operation.Parameters select RenderArgument(p, false)));        
+    }   
+
+    public override string TransformText ()
+    {           
+        if (Operation.IsObsolete)
+        {   
+           if (Operation.ObsoleteIsError) {
+#>
+[Obsolete("<#= Operation.ObsoleteMessage #>", true)]
+<#+        } else {
+#>
+[Obsolete("<#= Operation.ObsoleteMessage #>")]
+<#+
+        } }
+#>
+<#= Operation.ReturnTypeFriendlyName #> <#= Operation.DeclaringTypeFriendlyName #>.<#= Operation.MethodName #> ( <#= RenderParameterList() #> )
+{       
+    <#= Operation.IsFunction ? "return " : "" #>this.<#= Operation.Name #>(<#= RenderArgumentsFromParameterList() #>);
+}
+<#+
+        return this.GenerationEnvironment.ToString();
+    } 
+} 
+#>

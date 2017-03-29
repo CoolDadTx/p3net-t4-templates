@@ -1,0 +1,85 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.9
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Targets", "Targets", "{1151936C-1E6F-49D3-8C26-EAF37A1AFAD2}"
+	ProjectSection(SolutionItems) = preProject
+		Targets\Install.ps1 = Targets\Install.ps1
+		Targets\P3Net.targets = Targets\P3Net.targets
+		Targets\Readme.txt = Targets\Readme.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Infrastructure", "_Infrastructure", "{7193252B-257A-42A8-9B43-A801F410905B}"
+	ProjectSection(SolutionItems) = preProject
+		_Infrastructure\AssemblyVersion.cs = _Infrastructure\AssemblyVersion.cs
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "P3Net.TextTemplating", "P3Net.TextTemplating\P3Net.TextTemplating.csproj", "{8C0C94C0-50D2-4156-AA60-D36160D0B68B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ItemTemplates", "ItemTemplates\ItemTemplates.csproj", "{728C42C2-B6AE-4956-B43D-213A936DF65D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "T4TemplatesSetup", "T4TemplatesSetup\T4TemplatesSetup.csproj", "{2ACA6968-D6CD-4B6B-B03D-53AFE3BBD713}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextTemplates", "TextTemplates\TextTemplates.csproj", "{ECFAE729-7551-4ADB-BB61-46BA0074A24B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "P3Net.TemplateWizards", "P3Net.TemplateWizards\P3Net.TemplateWizards.csproj", "{D19CCC0E-59E4-4EA2-9FC7-164853BC40E4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "P3Net.BuildExtensions.Setup", "P3Net.BuildExtensions.Setup\P3Net.BuildExtensions.Setup.csproj", "{91EE4A35-584A-49EF-BA16-1CAE4DC85F31}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "P3Net.BuildExtensions", "P3Net.BuildExtensions\P3Net.BuildExtensions.csproj", "{F7708DE1-DB4F-4D30-9518-126D6C4C6D8F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8C0C94C0-50D2-4156-AA60-D36160D0B68B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C0C94C0-50D2-4156-AA60-D36160D0B68B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C0C94C0-50D2-4156-AA60-D36160D0B68B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C0C94C0-50D2-4156-AA60-D36160D0B68B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{728C42C2-B6AE-4956-B43D-213A936DF65D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{728C42C2-B6AE-4956-B43D-213A936DF65D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{728C42C2-B6AE-4956-B43D-213A936DF65D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{728C42C2-B6AE-4956-B43D-213A936DF65D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2ACA6968-D6CD-4B6B-B03D-53AFE3BBD713}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2ACA6968-D6CD-4B6B-B03D-53AFE3BBD713}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2ACA6968-D6CD-4B6B-B03D-53AFE3BBD713}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2ACA6968-D6CD-4B6B-B03D-53AFE3BBD713}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECFAE729-7551-4ADB-BB61-46BA0074A24B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECFAE729-7551-4ADB-BB61-46BA0074A24B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECFAE729-7551-4ADB-BB61-46BA0074A24B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECFAE729-7551-4ADB-BB61-46BA0074A24B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D19CCC0E-59E4-4EA2-9FC7-164853BC40E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D19CCC0E-59E4-4EA2-9FC7-164853BC40E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D19CCC0E-59E4-4EA2-9FC7-164853BC40E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D19CCC0E-59E4-4EA2-9FC7-164853BC40E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91EE4A35-584A-49EF-BA16-1CAE4DC85F31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91EE4A35-584A-49EF-BA16-1CAE4DC85F31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91EE4A35-584A-49EF-BA16-1CAE4DC85F31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91EE4A35-584A-49EF-BA16-1CAE4DC85F31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7708DE1-DB4F-4D30-9518-126D6C4C6D8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7708DE1-DB4F-4D30-9518-126D6C4C6D8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7708DE1-DB4F-4D30-9518-126D6C4C6D8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7708DE1-DB4F-4D30-9518-126D6C4C6D8F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 4
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://cooldadtx.visualstudio.com/
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = T4TemplatesSetup\\T4TemplatesSetup.csproj
+		SccProjectName1 = T4TemplatesSetup
+		SccLocalPath1 = T4TemplatesSetup
+		SccProjectUniqueName2 = P3Net.BuildExtensions.Setup\\P3Net.BuildExtensions.Setup.csproj
+		SccProjectName2 = P3Net.BuildExtensions.Setup
+		SccLocalPath2 = P3Net.BuildExtensions.Setup
+		SccProjectUniqueName3 = P3Net.BuildExtensions\\P3Net.BuildExtensions.csproj
+		SccProjectName3 = P3Net.BuildExtensions
+		SccLocalPath3 = P3Net.BuildExtensions
+	EndGlobalSection
+EndGlobal

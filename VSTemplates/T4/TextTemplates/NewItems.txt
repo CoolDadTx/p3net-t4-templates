@@ -1,0 +1,9 @@
+﻿Adding New T4 Text Templates Includes
+1) Create subfolder in TextTemplates project 
+2) Add .tt file(s)
+3) For each file view Properties
+	Build Action = Content
+	Copy to Output = Copy always
+	Custom Tool = (blank)
+	Include in VSIX = True
+4) Add entry to TextTemplates.pkgdef file for new folder - must start with "Include"

@@ -1,0 +1,19 @@
+﻿Adding New Item Templates
+1) Create subfolder in ItemTemplates project
+2) Add items to subfolder
+3) For each file view Properties (excluding .ico and .vstemplate)
+	Build Action = Content
+	Custom Tool = (blank)
+	Include in VSIX = True
+4) For the .vstemplate file
+    Build Action = VSTemplate
+    Include in VSIX = False
+    Category = (Optional)
+5) In the VSTemplate file
+    Set RequiredFrameworkVersion as appropriate
+    Set a unique TemplateID
+    Update the name
+    Provide a description
+    Provide an icon or copy an existing VS icon
+    Add any reference assemblies
+    For each ProjectItem set ItemType to the Build Action

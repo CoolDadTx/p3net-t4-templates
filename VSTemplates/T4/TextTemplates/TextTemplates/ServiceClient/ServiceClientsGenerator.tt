@@ -1,0 +1,136 @@
+﻿<#@ Assembly name="System.Configuration"#>
+<#@ Assembly name="System.Core.dll" #>
+<#@ Assembly name="System.ComponentModel.DataAnnotations.dll" #>
+<#@ Assembly name="System.ServiceModel.dll" #>
+<#@ Assembly name="EnvDTE" #>
+<#@ Assembly name="P3Net.TextTemplating.dll" #>
+<#@ Assembly name="VSLangProj" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Collections" #>
+<#@ import namespace="System.Collections.Generic" #> 
+<#@ import namespace="System.Configuration" #> 
+<#@ import namespace="System.ComponentModel.DataAnnotations" #> 
+<#@ import namespace="System.Reflection" #>
+<#@ import namespace="System.ServiceModel" #>
+<#@ import namespace="System.ServiceModel.Configuration" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="Microsoft.VisualStudio.TextTemplating" #>
+<#@ import namespace="P3Net.TextTemplating" #>
+<#@ include file="T4Toolbox.tt" #>
+<#@ include file="ServiceClientTemplate.tt" #>
+<#+
+public class EndpointConfiguration
+{
+	public bool Exclude { get; set; }
+	
+	public string Name { get; set; }
+}
+
+public class ServiceClientsGenerator : MyGenerator
+{
+	#region Configuration Properties
+
+	public bool IsPublic;
+
+	public string ConfigurationProject { get; set; }
+		
+	public ServiceClientsGenerator ConfigureEndpoint ( string endpointName, EndpointConfiguration configuration )
+	{
+		if (configuration != null)
+		{
+			if (m_configuration == null)
+				m_configuration = new Dictionary<string, EndpointConfiguration>(StringComparer.OrdinalIgnoreCase);
+
+			m_configuration[endpointName] = configuration;
+		};
+
+		return this;
+	}
+	#endregion
+	
+	private Dictionary<string, EndpointConfiguration> m_configuration;
+	private HashSet<string> m_generatedExtensions = new HashSet<string>();
+
+	private ClientSection ClientInfo;
+
+	private ClientSection GetClientEndpoints ( EnvDTE.ProjectItem configItem )
+	{                        
+		if (configItem != null)
+		{
+			var configFile = new ExeConfigurationFileMap() { ExeConfigFilename = configItem.GetFileName() };
+		
+			var config = System.Configuration.ConfigurationManager.OpenMappedExeConfiguration(configFile, ConfigurationUserLevel.None);
+			
+			return config.GetSection("system.serviceModel/client") as ClientSection;		    
+		};
+
+		return null;
+	}    
+
+	private EndpointConfiguration GetEndpointConfiguration ( string endpoint )
+	{
+		EndpointConfiguration config = null;
+
+		if (m_configuration != null)
+			m_configuration.TryGetValue(endpoint, out config);
+
+		if (config == null)
+			config = new EndpointConfiguration();
+
+		if (String.IsNullOrEmpty(config.Name))
+			config.Name = endpoint.Split(SplitNameTokens).LastOrDefault();
+
+		return config;
+	}
+	private static readonly char[] SplitNameTokens = new char[] { '.', '_' };
+		
+	protected override void Validate ()
+	{
+		base.Validate();        
+		if (Errors.HasErrors)
+			return;
+		
+		var project = String.IsNullOrEmpty(ConfigurationProject) ? ActiveProject : FindProject(ConfigurationProject);
+		if (project == null)
+			Error("Unable to locate configuration project '{0}'.", ConfigurationProject);
+
+		ClientSection client = null;
+		var configItem = project.GetConfigurationFileItem();
+		if (configItem != null)
+		{
+			client = GetClientEndpoints(configItem);                            
+			if (client == null || client.Endpoints.Count == 0)         
+				Warning("No WCF client endpoints found.");
+		} else
+			Warning("No configuration file found.");
+		
+		ClientInfo = client ?? new ClientSection();    
+	}
+
+	protected override void RunCore ()
+	{        
+		foreach (ChannelEndpointElement endpoint in ClientInfo.Endpoints)
+		{   
+			//Get the configuration
+			var config = GetEndpointConfiguration(endpoint.Name);
+			
+			if (!config.Exclude)
+			{         
+				var template = new ServiceClientTemplate() 
+				{ 
+					IsPublic = this.IsPublic, 
+					ContractName = config.Name, 
+					ContractTypeName = endpoint.Contract, 
+					EndpointName = endpoint.Name,
+					ExcludeExtensionClass = m_generatedExtensions.Contains(endpoint.Contract)
+				};                                            
+				InitializeTemplate(template).RenderToFile(config.Name + ".generated.cs");
+				
+				m_generatedExtensions.Add(template.ContractTypeName);
+			};
+		};
+	}
+}
+#>

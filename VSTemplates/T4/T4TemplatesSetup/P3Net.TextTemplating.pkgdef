@@ -1,0 +1,4 @@
+﻿[$RootKey$\TextTemplating]
+[$RootKey$\TextTemplating\IncludeFolders]
+[$RootKey$\TextTemplating\IncludeFolders\.tt]
+"IncludeP3NetTemplateAssemblies"="$PackageFolder$"

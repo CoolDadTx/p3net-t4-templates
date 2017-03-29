@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" xmlns:sdk="http://schemas.microsoft.com/developer/vstemplate-sdkextension/2010">
+    <TemplateData>
+        <Name>Service Client Generator</Name>
+        <Description>Generates a service client for the WCF client endpoints in the project.</Description>
+        <Icon Package="{2c0f61bf-3c36-468c-94b8-4021965749e7}" ID="401" />
+        <TemplateID>0B85A768-3AEB-4961-A89F-AACBB3483F96</TemplateID>
+        <ProjectType>CSharp</ProjectType>
+        <RequiredFrameworkVersion>4.0</RequiredFrameworkVersion>
+        <DefaultName>ServiceClient.tt</DefaultName>
+    </TemplateData>
+    <TemplateContent>
+        <References>
+            <Reference>
+                <Assembly>System.Runtime.Serialization</Assembly>
+            </Reference>
+            <Reference>
+                <Assembly>System.ServiceModel</Assembly>
+            </Reference>
+        </References>
+        <ProjectItem ReplaceParameters="false" ItemType="None">ServiceClient.tt</ProjectItem>
+    </TemplateContent>
+</VSTemplate>

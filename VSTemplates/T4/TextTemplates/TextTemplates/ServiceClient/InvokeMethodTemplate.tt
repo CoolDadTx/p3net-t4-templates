@@ -1,0 +1,79 @@
+﻿<#+
+public class InvokeMethodTemplate : ServiceOperationTextTransformation
+{        
+    private string RenderArguments ( )
+    {
+        //Arguments
+        var args = (from p in Operation.Parameters select RenderArgument(p));
+        
+        return String.Join(", ", args);        
+    }
+
+    private string RenderInvokeMethodCall ( bool storeReturnValue )
+    {
+        var builder = new StringBuilder();
+
+        if (Operation.IsFunction)
+        {
+            if (storeReturnValue)
+                builder.Append("var results = ");
+            else
+                builder.Append("return ");
+
+            builder.AppendFormat("InvokeMethod<{0}>", Operation.ReturnTypeFriendlyName);
+        } else
+            builder.Append("InvokeMethod");
+                
+        builder.AppendFormat("(x => x.{0}({1}));", Operation.MethodName, RenderArguments());
+        
+        return builder.ToString();
+    }
+        
+    public override string TransformText ()
+    {   
+        if (Operation.IsObsolete)
+        {   
+            if (Operation.ObsoleteIsError) {
+    #>
+    [Obsolete("<#= Operation.ObsoleteMessage #>", true)]
+    <#+        } else {
+    #>
+    [Obsolete("<#= Operation.ObsoleteMessage #>")]
+    <#+
+        } }
+    #>
+    public virtual <#= Operation.ReturnTypeFriendlyName #> <#= Operation.Name #> ( <#= RenderParameterList() #> )
+    {
+    <#+ 
+        if (Operation.ObsoleteIsError) { 
+    #>
+        throw new NotSupportedException("This method is obsolete.");
+    <#+ } else {
+            var outOrRefParameters = (from p in Operation.Parameters where p.IsOutOrRef select p);
+            var storeReturnValue = Operation.IsFunction && outOrRefParameters.Any(); 
+            //For each out/ref parameter generate a temp variable to pass to the lambda    
+            foreach (var parameter in outOrRefParameters) 
+            {            
+                parameter.GenerateTemporaryName(); #>
+    <#= parameter.TypeFriendlyName #> <#= parameter.TemporaryName #> = <#= parameter.IsOut ? GetDefaultValueString(parameter) : parameter.Name #>;
+    <#+     }; #>    
+    <#= RenderInvokeMethodCall(storeReturnValue) #>
+    <#+ 
+            //For each out/ref parameter generate an assign from temp back to parameter
+            foreach (var parameter in outOrRefParameters) 
+            {  #>
+    <#= parameter.Name #> = <#= parameter.TemporaryName #>; 
+    <#+
+            };
+
+            //Return a value if needed
+            if (storeReturnValue) 
+            { #>    
+    return results;
+    <#+     } 
+        };#>
+    }
+    <#+
+        return this.GenerationEnvironment.ToString();
+    } 
+} #>

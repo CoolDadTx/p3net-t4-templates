@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" xmlns:sdk="http://schemas.microsoft.com/developer/vstemplate-sdkextension/2010">
+  <TemplateData>
+    <Name>Application Settings Template</Name>
+    <Description>Template for generating a strongly-typed AppSettings class.</Description>
+    <Icon>AppSettings.ico</Icon>
+    <TemplateID>1967f89a-e378-4d6a-9a18-86c09a6e910d</TemplateID>
+    <ProjectType>CSharp</ProjectType>
+    <RequiredFrameworkVersion>4.0</RequiredFrameworkVersion>
+    <NumberOfParentCategoriesToRollUp>1</NumberOfParentCategoriesToRollUp>
+    <DefaultName>AppSettings.tt</DefaultName>
+  </TemplateData>
+  <TemplateContent>
+    <References>
+      <Reference>
+        <Assembly>System.Configuration</Assembly>        
+      </Reference>
+    </References>
+    <ProjectItem ReplaceParameters="true" ItemType="None">AppSettings.tt</ProjectItem>
+  </TemplateContent>
+</VSTemplate>

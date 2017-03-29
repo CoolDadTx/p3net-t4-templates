@@ -1,0 +1,5 @@
+﻿[$RootKey$\TextTemplating]
+[$RootKey$\TextTemplating\IncludeFolders]
+[$RootKey$\TextTemplating\IncludeFolders\.tt]
+"IncludeP3NetAppSettings"="$PackageFolder$\TextTemplates\AppSettings"
+"IncludeP3NetServiceClient"="$PackageFolder$\TextTemplates\ServiceClient"

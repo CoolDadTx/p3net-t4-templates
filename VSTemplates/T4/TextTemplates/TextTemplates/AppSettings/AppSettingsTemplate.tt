@@ -1,0 +1,339 @@
+﻿<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Configuration" #>
+<#@ assembly name="P3Net.TextTemplating.dll" #>
+<#@ assembly name="EnvDTE" #>
+<#@ include file="T4Toolbox.tt" #>
+<#@ import namespace="System.Configuration" #>
+<#@ import namespace="System.Globalization" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ Import namespace="P3Net.TextTemplating" #>
+<#+ 
+public class AppSettingsTemplate : MyTemplate
+{    
+    #region Configuration Members
+     
+    public bool IsPublic;
+    public string ConfigurationProject { get; set; }
+
+    /// <summary>Configures the interface for the settings class.</summary>
+    /// <param name="configure">The action to run.</param>
+    /// <returns>The template.</returns>
+    public AppSettingsTemplate ConfigureInterface ( Action<InterfaceConfiguration> configure )
+    {
+        configure(m_interfaceSettings);
+
+        return this;
+    }
+
+    /// <summary>Configures the options for a specific setting.</summary>
+    /// <param name="configure">The action to run.</param>
+    /// <returns>The template.</returns>
+    public AppSettingsTemplate ConfigureSetting ( string name, Action<SettingConfiguration> configure )
+    {
+        var setting = FindSettingConfiguration(name, true);
+        
+        configure(setting);        
+        return this;
+    }
+
+    /// <summary>Allows for excluding a set of settings.</summary>
+    /// <param name="settingName">The setting mask to exclude.</param>
+    /// <returns>The template.</returns>
+    public AppSettingsTemplate ExcludeSetting ( string settingName )
+    {
+        var token = settingName.Substring(0, settingName.IndexOf('*'));
+        m_exclusionMasks.Add(token);
+
+        return this;
+    }
+    #endregion
+
+    //private readonly NestedSettingsConfiguration m_nestedSettings = new NestedSettingsConfiguration();            
+    private readonly InterfaceConfiguration m_interfaceSettings = new InterfaceConfiguration();
+    private readonly List<string> m_exclusionMasks = new List<string>();
+    private List<SettingConfiguration> m_settings = new List<SettingConfiguration>();
+
+    private Lazy<Dictionary<Type, string>> m_settingsConverter = new Lazy<Dictionary<Type, string>>(InitializeSettingsConverter);
+    private List<SettingConfiguration> AppSettingsInfo { get; set; }
+
+    private SettingConfiguration FindSettingConfiguration ( string name, bool allowCreate )
+    {
+        var setting = m_settings.FirstOrDefault(s => String.Compare(s.Key, name, true) == 0);
+        if (setting == null && allowCreate)
+        {
+            setting = new SettingConfiguration(name) { Name = name };
+            m_settings.Add(setting);
+        };
+
+        return setting;
+    }
+
+    private List<SettingConfiguration> GenerateSettingsConfiguration ( KeyValueConfigurationCollection items )
+    {
+        var settings = new List<SettingConfiguration>();
+        if (items == null)
+            return settings;
+
+        foreach (KeyValueConfigurationElement item in items)
+        {                
+            //If the setting doesn't exist yet then generate an entry for it
+            var setting = FindSettingConfiguration(item.Key, true);            
+
+            //Ensure the setting has a type
+            if (setting.Type == null)
+                setting.Type = GetSettingType(item.Value);
+
+            //Exclude the setting if needed
+            if (!setting.Exclude && IsExcluded(setting.Key))
+                setting.Exclude = true;
+
+            settings.Add(setting);
+        };
+
+        return settings;
+    }
+
+    private KeyValueConfigurationCollection GetAppSettings ( EnvDTE.ProjectItem configItem )
+    {
+        if (configItem != null)
+        {
+            var configFile = new ExeConfigurationFileMap() { ExeConfigFilename = configItem.GetFileName() };
+
+            var config = System.Configuration.ConfigurationManager.OpenMappedExeConfiguration(configFile, ConfigurationUserLevel.None);
+
+            return (config.AppSettings != null) ? config.AppSettings.Settings : null;
+        };
+
+        return null;
+    }
+
+    private string GetSettingConverter ( Type type )
+    {
+        string converter;
+        if (m_settingsConverter.Value.TryGetValue(type, out converter))
+            return converter;
+
+        return "";
+    }
+
+    private Type GetSettingType ( string value )
+    {
+        //Try to convert to int first
+        int iValue;
+        if (Int32.TryParse(value, NumberStyles.Integer, null, out iValue))
+            return typeof(int);
+
+        //Double is next
+        double dValue;
+        if (Double.TryParse(value, NumberStyles.Float | NumberStyles.AllowCurrencySymbol, null, out dValue))
+            return typeof(double);
+
+        //Boolean
+        bool bValue;
+        if (Boolean.TryParse(value, out bValue))
+            return typeof(bool);
+
+        return typeof(string);
+    }
+
+    private static Dictionary<Type, string> InitializeSettingsConverter ()
+    {
+        return new Dictionary<Type, string>() {
+                { typeof(sbyte), "TypeConversion.ToSByteOrDefault" },
+                { typeof(short), "TypeConversion.ToInt16OrDefault" },
+                { typeof(int), "TypeConversion.ToInt32OrDefault" },
+                { typeof(long), "TypeConversion.ToInt64OrDefault" },
+
+                { typeof(byte), "TypeConversion.ToByteOrDefault" },
+                { typeof(ushort), "TypeConversion.ToUInt16OrDefault" },
+                { typeof(uint), "TypeConversion.ToUInt32OrDefault" },
+                { typeof(ulong), "TypeConversion.ToUInt64OrDefault" },
+
+                { typeof(float), "TypeConversion.ToSingleOrDefault" },
+                { typeof(double), "TypeConversion.ToDoubleOrDefault" },
+                { typeof(decimal), "TypeConversion.ToDecimalOrDefault" },
+
+                { typeof(bool), "TypeConversion.ToBooleanOrDefault" },
+                { typeof(char), "TypeConversion.ToCharOrDefault" },
+                { typeof(DateTime), "TypeConversion.ToDateTimeOrDefault" },
+                { typeof(Guid), "ToGuidOrDefault" },
+                { typeof(TimeSpan), "TypeConversion.ToTimeSpanOrDefault" },
+
+                { typeof(string), "TypeConversion.ToStringOrEmpty" }
+                };
+    }
+
+    private bool IsExcluded ( string settingName )
+    {
+        return m_exclusionMasks.Where(x => settingName.StartsWith(x, StringComparison.OrdinalIgnoreCase)).Any();
+    }
+
+    protected override IEnumerable<AssemblyDependency> GetDependencies ()
+    {
+        return new AssemblyDependency[] {
+            //new AssemblyDependency("My Assembly", "MyAssembly", new Version(1, 0))
+    };
+    }
+
+    protected override void Validate ()
+    {
+        base.Validate();
+        if (Errors.HasErrors)
+            return;
+
+        KeyValueConfigurationCollection info = null;
+
+        var project = String.IsNullOrEmpty(ConfigurationProject) ? ActiveProject : FindProject(ConfigurationProject);
+        if (project != null)
+        {
+            var configItem = project.GetConfigurationFileItem();
+            if (configItem != null)
+            {
+                info = GetAppSettings(configItem);
+                if (info == null || info.Count == 0)
+                    Warning("No appSetting entries found.");
+            } else
+                Warning("Unable to locate configuration file.");
+        } else
+            Error("Unable to locate configuration project '{0}'.", ConfigurationProject);
+
+        //Generate the settings configuration
+        AppSettingsInfo = GenerateSettingsConfiguration(info);
+    }
+
+    public override string TransformText ()
+    {
+        base.TransformText();      
+        
+        var className = PropertyName(TemplateName);
+#>
+// ConfigurationProject = <#= !String.IsNullOrEmpty(ConfigurationProject) ? ConfigurationProject : "Current" #> 
+using System;
+using System.Configuration;
+
+namespace <#= DefaultNamespace #>
+{    	
+    /// <summary>Provides type-safe access to application settings.</summary>
+    /// <remarks>
+    /// Each setting in the appSettings section of the config file is generated as a strongly-typed property.  The type
+    /// of the property is determined by the value. 
+    /// </remarks>
+<#+ Indent(); WriteTypeAttributes(); Unindent(); #>    
+    <#= IsPublic ? "public" : "internal" #> partial class <#= className #><#+ if (m_interfaceSettings.Implement) { #> : <#= m_interfaceSettings.Name #> 
+<#+ 
+        } 
+#>
+    {	
+        /// <summary>Gets the default instance.</summary>
+        public static <#= className #> Default
+        {
+            get { return s_defaultInstance; }
+            protected set { s_defaultInstance = value ?? new <#= className #>(); }
+        }
+<#+
+        foreach (var setting in AppSettingsInfo) {
+            if (setting.Exclude)
+                continue;
+#>
+            
+        public <#= setting.Type.GetFriendlyName(true) #> <#= PropertyName(setting.Name) #>
+        {
+            get { return <#= GetSettingConverter(setting.Type) #>(GetConfigSetting("<#= setting.Key #>")); }
+        }
+<#+
+        }
+#>	
+        protected virtual string GetConfigSetting(string settingName)
+        {
+            var setting = ConfigurationManager.AppSettings[settingName];
+            return setting ?? "";
+        }		
+
+        protected Guid ToGuidOrDefault ( string value )
+        {
+            Guid result;
+
+            if (Guid.TryParse(value, out result))
+                return result;
+
+            return Guid.Empty;
+        }		
+
+        private static <#= className #> s_defaultInstance = new <#= className #>();
+    }
+<#+ if (m_interfaceSettings.Implement && m_interfaceSettings.Generate) { #>
+
+    /// <summary>Represents the application settings.</summary>
+<#+ Indent(); WriteInterfaceAttributes(); Unindent(); #>    
+    <#= m_interfaceSettings.IsPublic ? "public" : "internal" #> interface <#= m_interfaceSettings.Name #>
+    {
+<#+
+        foreach (var setting in AppSettingsInfo) {
+            if (setting.Exclude)
+                continue;
+#>       
+        <#= setting.Type.GetFriendlyName(true) #> <#= PropertyName(setting.Name) #> { get; }
+<#+
+        }
+#>
+    }
+<#+
+    }
+#>
+}
+<#+
+        return this.GenerationEnvironment.ToString();
+    }
+}
+
+//Used to configure a single setting
+public sealed class SettingConfiguration
+{
+    public SettingConfiguration ( string key )
+    {
+       Key = key ?? "";
+    }
+
+    public string Key { get; private set; }
+
+    public string Name { get; set; }
+
+    public bool Exclude { get; set; }
+
+    public Type Type { get; set; }
+}
+
+//Used to configure the interface
+public sealed class InterfaceConfiguration 
+{
+    public InterfaceConfiguration ()
+    {
+        Generate = true;
+        Implement = true;
+        Name = "IAppSettings";
+    }
+       
+    public bool Generate { get; set; }       
+    public bool Implement { get; set; }       
+    public bool IsPublic { get; set; }
+    public string Name { get; set; }
+}
+
+//Used to configure nested settings
+/*public sealed class NestedSettingsConfiguration
+{
+    public NestedSettingsConfiguration ()
+    {
+        Delimiters = new [] { ":", "-", "_", "." };
+        UseNestedTypes = true;
+    }
+       
+    public string[] Delimiters { get; set; }       
+    public bool Enabled { get; set; }              
+    public bool UseNestedTypes { get; set; }
+}*/
+#>
+

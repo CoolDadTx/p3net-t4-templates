@@ -1,0 +1,116 @@
+﻿<#@ include file="ServiceOperationTemplate.tt" #>
+<#+
+public sealed class ServiceContractInfo
+{
+    public ServiceContractInfo ( Type type )
+    {
+        this.Type = type;
+    }
+
+    public string FriendlyName
+    {
+        get
+        {
+            if (m_friendlyName == null)
+                m_friendlyName = this.Type.GetFriendlyName(true);
+
+            return m_friendlyName ?? "";
+        }
+    }        
+
+    public Type Type { get; private set; }
+    
+    public IEnumerable<ServiceContractInfo> GetInheritedContracts ( )
+    {      
+        if (m_inherited == null)
+        {
+            m_inherited = (from i in this.Type.GetInterfaces()
+                           where i.HasAttribute<ServiceContractAttribute>(false)
+                           select new ServiceContractInfo(i));            
+        };
+        
+        return m_inherited;  
+    }
+
+    public IEnumerable<ServiceOperationInfo> GetOperations ( )
+    {
+        if (m_operations == null)
+        {
+            m_operations = (from m in this.Type.GetPublicInstanceMethods()
+                            where m.HasAttribute<OperationContractAttribute>(false)
+                            select new ServiceOperationInfo(m));
+        };
+
+        return m_operations;
+    }
+
+    public bool IsObsolete
+    {
+        get 
+        { 
+            if (!m_isObsolete.HasValue)
+            {
+                m_obsolete = Type.GetCustomAttribute<ObsoleteAttribute>(true);
+                
+                m_isObsolete = m_obsolete != null;       
+            };
+
+            return m_isObsolete.Value;
+        }
+    }
+
+    public MethodInfo Method { get; private set; }
+
+    public bool ObsoleteIsError
+    {
+        get { return IsObsolete ? m_obsolete.IsError : false; }
+    }
+
+    public string ObsoleteMessage
+    {
+        get { return IsObsolete ? m_obsolete.Message : ""; }
+    }
+
+    private string m_friendlyName;
+    private IEnumerable<ServiceOperationInfo> m_operations;
+    private IEnumerable<ServiceContractInfo> m_inherited;
+    private bool? m_isObsolete;
+    private ObsoleteAttribute m_obsolete;
+}
+
+public class ServiceContractTemplate : MyTemplate
+{
+    //////////////////////////////
+    // Configuration Properties
+
+    public ServiceContractInfo Service { get; set; }
+
+    //////////////////////////////
+    // Methods    
+        
+    public override string TransformText ()
+    { 
+#>
+#region <#= Service.FriendlyName #> Members
+<#+        
+        //Render all the operations first
+        foreach (var operation in Service.GetOperations())
+        {         
+            var template = new InvokeMethodTemplate() { Operation = operation };
+            Write(template.TransformText());
+        };
+
+        //Render explicit interface methods
+        var explicitMethods = (from op in Service.GetOperations() where op.HasCustomName select op);
+        foreach (var operation in explicitMethods)
+        { 
+            var template = new ExplicitInterfaceMethodTemplate() { Operation = operation };
+            Write(template.TransformText());      
+        };         
+#>
+#endregion    
+<#+
+        return this.GenerationEnvironment.ToString();
+    } 
+} 
+#>
