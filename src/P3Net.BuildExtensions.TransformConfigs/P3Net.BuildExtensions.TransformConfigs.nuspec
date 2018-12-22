@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>P3Net.BuildExtensions.TransformConfigs</id>
+    <version>15.1.0</version>
+    <title>P3Net Build Extensions - Transform Configs</title>
+    <authors>P3Net</authors>
+    <owners>P3Net</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <developmentDependency>true</developmentDependency>
+    <description>Provides build tasks. Build tasks include:
+    - Run config transforms at build time.
+    </description>
+    <copyright>Copyright 2018 Michael Taylor</copyright>
+    <tags>p3net build</tags>
+  </metadata>
+   <files>
+      <file src="_packaging\build\" target="build\" />
+      <file src="_packaging\tools\" target="tools\" />
+       <file src="bin\release\net461\Microsoft.Web.XmlTransform.dll" target="tools" />
+       <file src="bin\release\net461\P3Net.BuildExtensions.TransformConfigs.dll" target="tools" />
+   </files>
+</package>

@@ -1,0 +1,54 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net461</TargetFramework>
+        <Title>P3Net Build Extensions - Transform Configs</Title>
+        <Description>Provides a build extension to transform config files.</Description>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <NuspecFile>P3Net.BuildExtensions.TransformConfigs.nuspec</NuspecFile>
+        <NuspecBasePath>$(TargetDir)</NuspecBasePath>
+        <PackageTags>p3net;build</PackageTags>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <PackageReleaseNotes>
+            https://github.com/cooldadtx/p3net-t4-templates
+        </PackageReleaseNotes>
+
+        <NoWarn>$(NoWarn);NU5105</NoWarn>
+        <MinClientVersion>4.1</MinClientVersion>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <PackageProjectUrl>https://github.com/cooldadtx/p3net-t4-templates</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/cooldadtx/p3net-t4-templates</RepositoryUrl>
+        <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    </PropertyGroup>
+
+    <!--<PropertyGroup>
+        <PackDependsOn>CopyBinaries;$(PackDependsOn)</PackDependsOn>
+    </PropertyGroup>
+    <Target Name="CopyBinaries">
+        <Exec Command="xcopy &quot;$(TargetDir)Microsoft.Web.XmlTransform.dll&quot; &quot;$(ProjectDir)Bin\&quot; /Y /R&#xD;&#xA;xcopy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)Bin\&quot; /Y /R" />
+        <ItemGroup>
+            <_PackageFiles Include="$(ProjectDir)Bin\Microsoft.Web.XmlTransform.dll"></_PackageFiles>
+        </ItemGroup>
+    </Target>-->
+
+    <ItemGroup>
+        <None Remove="_Packaging\P3Net.BuildExtensions.TransformConfigs.props" />
+        <None Remove="_Packaging\Tools\P3Net.BuildExtensions.TransformConfigs.targets" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="_Packaging\Build\P3Net.BuildExtensions.TransformConfigs.props">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Include="_Packaging\Tools\P3Net.BuildExtensions.TransformConfigs.targets">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Build.Framework" Version="15.8.166" />
+        <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.8.166" />
+        <PackageReference Include="Microsoft.Web.Xdt" Version="2.1.2" />
+    </ItemGroup>
+</Project>

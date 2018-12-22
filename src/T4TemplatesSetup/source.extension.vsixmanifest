@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="P3NetTemplates.VS2017" Version="15.0.0" Language="en-US" Publisher="P3Net" />
+        <Identity Id="P3NetTemplates.VS2017" Version="15.1.0" Language="en-US" Publisher="P3Net" />
         <DisplayName>P3Net Text Templates (VS 2017)</DisplayName>
         <Description xml:space="preserve">P3Net T4 templates.
 
 Requires: T4 Toolbox</Description>
-        <MoreInfo>http://www.michaeltaylorp3.net</MoreInfo>
-        <ReleaseNotes>ReleaseNotes.rtf</ReleaseNotes>
+        <MoreInfo>https://github.com/cooldadtx/p3net-t4-templates</MoreInfo>
+        <ReleaseNotes>https://github.com/cooldadtx/p3net-t4-templates</ReleaseNotes>
         <Tags>Templates</Tags>
     </Metadata>
     <Installation>
@@ -15,7 +15,6 @@ Requires: T4 Toolbox</Description>
     </Installation>
     <Dependencies>
         <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="4.5" />
-        <Dependency d:Source="Project" d:ProjectName="P3Net.BuildExtensions.Setup" Version="[15.0.0,16.0)" d:InstallSource="Download" DisplayName="|P3Net.BuildExtensions.Setup;VSIXNameProjectOutputGroup|" Id="|P3Net.BuildExtensions.Setup;VSIXIdentifierProjectOutputGroup|" />
     </Dependencies>
     <Assets>
         <Asset Type="Microsoft.VisualStudio.ItemTemplate" d:Source="Project" d:ProjectName="ItemTemplates" d:TargetPath="|ItemTemplates;TemplateProjectOutputGroup|" Path="ItemTemplates" d:VsixSubPath="ItemTemplates" />
