@@ -13,7 +13,7 @@
         <ProjectItem SubType="Code" ReplaceParameters="true" ItemType="None" TargetFileName="$BaseConfigFileName$.config\$BaseConfigFileName$.Production.config">base.Production.config</ProjectItem>
     </TemplateContent>
     <WizardExtension>
-        <Assembly>P3Net.TemplateWizards, Version=15.1.0.0, Culture=neutral, PublicKeyToken=null</Assembly>
+        <Assembly>P3Net.TemplateWizards, Version=16.0.0.0, Culture=neutral, PublicKeyToken=null</Assembly>
         <FullClassName>P3Net.TemplateWizards.EnvironmentConfigsWizard</FullClassName>
     </WizardExtension>
 </VSTemplate>

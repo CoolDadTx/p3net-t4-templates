@@ -1,17 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="P3NetTemplates.VS2017" Version="15.1.0" Language="en-US" Publisher="P3Net" />
-        <DisplayName>P3Net Text Templates (VS 2017)</DisplayName>
+        <Identity Id="P3NetTemplates.VS2017" Version="16.0.0" Language="en-US" Publisher="P3Net" />
+        <DisplayName>P3Net Text Templates</DisplayName>
         <Description xml:space="preserve">P3Net T4 templates.
 
+Supported Versions: Visual Studio 2017, Visual Studio 2019
 Requires: T4 Toolbox</Description>
         <MoreInfo>https://github.com/cooldadtx/p3net-t4-templates</MoreInfo>
         <ReleaseNotes>https://github.com/cooldadtx/p3net-t4-templates</ReleaseNotes>
         <Tags>Templates</Tags>
     </Metadata>
     <Installation>
-        <InstallationTarget Version="[15.0,16.0)" Id="Microsoft.VisualStudio.Community" />
+        <InstallationTarget Version="[15.0,17.0)" Id="Microsoft.VisualStudio.Community" />
     </Installation>
     <Dependencies>
         <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="4.5" />
@@ -23,8 +24,8 @@ Requires: T4 Toolbox</Description>
         <Asset Type="Microsoft.VisualStudio.Assembly" d:Source="Project" d:ProjectName="P3Net.TemplateWizards" Path="|P3Net.TemplateWizards|" AssemblyName="|P3Net.TemplateWizards;AssemblyName|" />
     </Assets>
     <Prerequisites>
-        <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[15.0,16.0)" DisplayName="Visual Studio core editor" />
-        <Prerequisite Id="Microsoft.VisualStudio.Component.ManagedDesktop.Core" Version="[15.0,16.0)" DisplayName="Managed Desktop Workload Core" />
-        <Prerequisite Id="Microsoft.VisualStudio.Component.Roslyn.Compiler" Version="[15.0,16.0)" DisplayName="C# and Visual Basic Roslyn compilers" />
+        <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[15.0,)" DisplayName="Visual Studio core editor" />
+        <Prerequisite Id="Microsoft.VisualStudio.Component.ManagedDesktop.Core" Version="[15.0,)" DisplayName="Managed Desktop Workload Core" />
+        <Prerequisite Id="Microsoft.VisualStudio.Component.Roslyn.Compiler" Version="[15.0,)" DisplayName="C# and Visual Basic Roslyn compilers" />
     </Prerequisites>
 </PackageManifest>

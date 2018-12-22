@@ -66,7 +66,7 @@ namespace P3Net.TemplateWizards
             public string BaseConfigFileName { get; set; }
         }
 
-        private const string SharedTargetsFileName = "P3Net.transformconfig.props";
+        private const string SharedTargetsFileName = "P3Net.BuildExtensions.TransformConfigs.props";
         private const string PackageName = "P3Net.BuildExtensions.TransformConfigs";
         #endregion
 
