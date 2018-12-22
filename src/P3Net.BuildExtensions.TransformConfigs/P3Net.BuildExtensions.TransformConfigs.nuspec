@@ -8,12 +8,14 @@
     <owners>P3Net</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <developmentDependency>true</developmentDependency>
-    <description>Provides build tasks. Build tasks include:
-    - Run config transforms at build time.
-    </description>
+      <summary>Provides a build extension to run config transforms at build time.</summary>
+    <description>Provides a build extension to run config transforms at build time.</description>
     <copyright>Copyright 2018 Michael Taylor</copyright>
     <tags>p3net build</tags>
       <license type="expression">MIT</license>
+      <projectUrl>https://www.michaeltaylorp3.net</projectUrl>
+      <releaseNotes>Moved from Visual Studio extension to NuGet package. Added support for VS 2019.</releaseNotes>
+      <repository type="git" url="https://github.com/CoolDadTx/p3net-t4-templates"></repository>
   </metadata>
    <files>
       <file src="_packaging\build\" target="build\" />
