@@ -13,6 +13,7 @@
     </description>
     <copyright>Copyright 2018 Michael Taylor</copyright>
     <tags>p3net build</tags>
+      <license type="expression">MIT</license>
   </metadata>
    <files>
       <file src="_packaging\build\" target="build\" />
