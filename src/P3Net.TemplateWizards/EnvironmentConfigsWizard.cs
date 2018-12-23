@@ -66,8 +66,8 @@ namespace P3Net.TemplateWizards
             public string BaseConfigFileName { get; set; }
         }
 
-        private const string SharedTargetsFileName = "P3Net.targets";
-        private const string SharedTargetsFilePath = "P3Net";
+        private const string SharedTargetsFileName = "P3Net.BuildExtensions.TransformConfigs.props";
+        private const string PackageName = "P3Net.BuildExtensions.TransformConfigs";
         #endregion
 
         private void RunStartedCore ( EnvDTE.DTE dte, 
@@ -106,19 +106,7 @@ namespace P3Net.TemplateWizards
             if (hasImport)
                 return;
 
-            //Make sure it exists first
-            var extensionsPath = buildProject.GetPropertyValue("MSBuildExtensionsPath");
-            var version = buildProject.GetPropertyValue("MSBuildToolsVersion");
-            if (String.IsNullOrEmpty(version))
-                version = "15.0";
-
-            var targetsPath = $@"{SharedTargetsFilePath}\{version}\{SharedTargetsFileName}";
-            var fullPath = Path.Combine(extensionsPath, targetsPath);
-            if (!File.Exists(fullPath))
-                ReportErrorAndCancel("The standard .targets file could not be located.");
-
-            //Add it             
-            buildProject.Xml.AddImport($@"$(MSBuildExtensionsPath)\{targetsPath}");
+            ReportErrorAndConfirm($"This item requires that the NuGet package {PackageName} be installed in the project. Do you want to add the template anyway?");
         }
         
         private ConfigurationFileItem GetConfigurationFile ( EnvDTE.Project project )
@@ -156,6 +144,13 @@ namespace P3Net.TemplateWizards
             ReportError(message, error);
 
             throw new WizardCancelledException(message, error);
+        }
+
+        private void ReportErrorAndConfirm ( string message, Exception error = null )
+        {
+            var msg = (error != null) ? String.Format("{0}\r\n{1}", message, error.Message) : message;
+            if (MessageBox.Show(msg, "Error", MessageBoxButtons.YesNo, MessageBoxIcon.Error) == DialogResult.No)
+                throw new WizardCancelledException(message, error);
         }
         #endregion
     }
