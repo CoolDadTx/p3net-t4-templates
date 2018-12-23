@@ -2,6 +2,7 @@
 
 T4 templates for Visual Studio based upon the following blog entries.
 
+[16.0.0](http://www.michaeltaylorp3.net/t4-templates-updated-for-visual-studio-2019/)
 [Updated Visual Studio Templates for VS 2017](http://www.michaeltaylorp3.net/updated-visual-studio-templates-for-vs-2017/)
 
 ## AppSettings Wrapper
